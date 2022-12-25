@@ -13,14 +13,17 @@ interface ChatMessage {
 
 export const ChatList = ({ messages }: { messages: ChatMessage[] }) => {
   const [chatBox] = useAutoAnimate<HTMLUListElement>();
+
   useEffect(() => {
-    if (chatBox.current) {
-      chatBox.current.scrollTop = chatBox.current.scrollHeight;
-    }
+    chatBox.current?.scrollTo({
+      top: chatBox.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [chatBox, messages]);
+
   return (
     <ul
-      className="max-h-96 overflow-y-auto border border-gray-800 rounded-md p-4"
+      className="overflow-y-scroll max-h-[600px] border border-gray-800 rounded-t-md p-4"
       ref={chatBox}
     >
       {messages?.map((message) => (
