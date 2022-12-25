@@ -10,8 +10,6 @@ export async function createContext(ctx: trpcNext.CreateNextContextOptions) {
   const session = await unstable_getServerSession(req, res, authOptions);
 
   return {
-    req,
-    res,
     prisma,
     session,
   };

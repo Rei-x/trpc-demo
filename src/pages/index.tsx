@@ -1,13 +1,20 @@
 import { signIn, useSession } from "next-auth/react";
 import Head from "next/head";
 import { trpc } from "@/utils/trpc";
+import { useCreateMessage } from "@/hooks/useCreateMessage";
+import { useMessages } from "@/hooks/useMessages";
+import { nanoid } from "nanoid";
+import { useState } from "react";
+import { ChatList } from "@/components/ChatList";
 
 export default function Home() {
-  const hello = trpc.hello.useQuery({
-    text: "hello 123",
+  const [message, setMessage] = useState("");
+  const { mutateAsync: createMessage } = useCreateMessage();
+  const { data: messages } = useMessages();
+  const sortedMessages = messages?.sort((a, b) => {
+    return a.createdAt.getTime() - b.createdAt.getTime();
   });
   const session = useSession();
-  const product = trpc.product.get.useQuery(123);
 
   return (
     <>
@@ -41,17 +48,40 @@ export default function Home() {
         </div>
       </nav>
       <main className="container px-10">
-        {hello.isLoading && <div>loading...</div>}
-        <h1 className="text-5xl">{hello.data?.text}</h1>
-        <button
-          className="btn btn-primary mt-3"
-          onClick={() => {
-            hello.refetch();
-          }}
-        >
-          refetch
-        </button>
-        {hello.error && <div>{hello.error.message}</div>}
+        <div>
+          <h2 className="text-4xl mb-4">Messages</h2>
+          <ChatList messages={sortedMessages ?? []} />
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setMessage("");
+              createMessage({
+                text: message,
+                clientId: nanoid(),
+              });
+            }}
+            className="flex items-end gap-4"
+          >
+            <div className="form-control">
+              <label className="label" htmlFor="message">
+                <span className="label-text">Message</span>
+              </label>
+              <input
+                className="input input-primary w-56"
+                type="text"
+                name="message"
+                autoComplete="off"
+                value={message}
+                onChange={(e) => {
+                  setMessage(e.target.value);
+                }}
+              />
+            </div>
+            <button type="submit" className="btn mt-3">
+              send
+            </button>
+          </form>
+        </div>
       </main>
     </>
   );

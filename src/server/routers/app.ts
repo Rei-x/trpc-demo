@@ -1,5 +1,6 @@
 import { protectedProcedure, publicProcedure, router } from "../trpc";
 import { z } from "zod";
+import { messageRouter } from "./message.router";
 
 export const appRouter = router({
   hello: protectedProcedure
@@ -16,14 +17,7 @@ export const appRouter = router({
         session: ctx.session,
       };
     }),
-  product: router({
-    get: publicProcedure.input(z.number()).query(({ input }) => {
-      return {
-        id: input,
-        name: "Product",
-      };
-    }),
-  }),
+  message: messageRouter
 });
 
 export type AppRouter = typeof appRouter;
